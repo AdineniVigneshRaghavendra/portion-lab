@@ -1,12 +1,66 @@
 <body>
-    <h1>it works!</h1>
+    <canvas id=c></canvas>
     <style>
-        body { background: black; color: white; font-family: sans-serif;}
+        body{margin: 0;overflow: hidden;background: #111;color: #fff;font: 20px sans-serif}
+        canvas{display: block}
 
     </style>
     <script>
-        const title = document.querySelector("h1");
-        title.onclick = () => (title.textContent = "you clicked it");
-        
+        const x=c.getContext("2d"),p=["#f00","#00f","#0f0"],s=[];
+
+        function bottle(px,py,color,on){
+            x.fillStyle="#bbb";
+            x.fillRect(px+15,py,20,15);
+            x.fillStyle=color;
+            x.beginPath();
+            x.roundRect(px,py+12,50,70,10);
+            x.fill();
+            if(on){
+                x.strokeStyle="#fff";
+                x.lineWidth=4;
+                x.strokeRect(px-2,py+12,50,70,10);
+                x.fill();
+                if(on){
+                    x.strokeStyle="#fff";
+                    x.lineWidth=4;
+                    x.strokeRect(px-2,py+10,54,74);
+                }
+            }
+
+            function draw() {
+                c.width=innerWidth;
+                c.height=innerHeight;
+                x.fillStyle="#111";
+                x.fillRect(0,0,c.width,c.height);
+
+                x.fillStyle="#fff";
+                x.font="28px sans-serif";
+                x.fillText("POTION LAB",20,50);
+                
+                p.forEach((color,i)=>
+                bottle(c.width/2-100+i*75,c.height/2,color,s.includes(i))
+            
+            );
+
+            x.font="20px sans-serif";
+            x.fillText(
+                s.length+" / 2 selected",
+                c.width/2-65,
+                c.height/2+120
+            );
+            }
+
+            c.onclick=e=>{
+                let i=Math.floor((e.clientX-(c.width/2-100))/75);
+                if(i>=0&&i<3&&e.clientY>c.height/2&&e.clientY<c.height/2+90){
+                    let n=s.indexOf(i);
+                    n>=0?s.splice(n,1):s.length<2&&s.push(i);
+                    draw();
+                }
+            };
+
+            onresize=draw;
+            draw();
+        }
     </script>
 </body>
