@@ -1,66 +1,118 @@
 <body>
     <canvas id=c></canvas>
     <style>
-        body{margin: 0;overflow: hidden;background: #111;color: #fff;font: 20px sans-serif}
-        canvas{display: block}
+        body{margin:0;overflow:hidden;background:#111;}
+        canvas{display:block;position: relative;z-index: 10}
 
     </style>
     <script>
-        const x=c.getContext("2d"),p=["#f00","#00f","#0f0"],s=[];
+        const c=document.getElementById("c"),x=c.getContext("2d");
+        let s=[],result="",score=0;
 
-        function bottle(px,py,color,on){
+        function draw() {
+            c.width=innerWidth;
+            c.height=innerHeight;
+
+            x.fillStyle="#111";
+            x.fillRect(0,0,c.width,c.height);
+
+            x.fillStyle="#fff";
+            x.font="28px sans-serif";
+            x.fillText("POTION LAB",20,50);
+            x.fillText("SCORE: "+score,20,80);
+
+           function bottle(px,py,color){
             x.fillStyle="#bbb";
             x.fillRect(px+15,py,20,15);
             x.fillStyle=color;
-            x.beginPath();
-            x.roundRect(px,py+12,50,70,10);
-            x.fill();
-            if(on){
-                x.strokeStyle="#fff";
-                x.lineWidth=4;
-                x.strokeRect(px-2,py+12,50,70,10);
-                x.fill();
-                if(on){
-                    x.strokeStyle="#fff";
-                    x.lineWidth=4;
-                    x.strokeRect(px-2,py+10,54,74);
-                }
-            }
+            x.fillRect(px,py+12,50,70);
+           }
+           
+          let bx=[c.width/2-100,c.width/2-25,c.width/2+50];
+          let bc=["#f00","#00f","#0f0"];
 
-            function draw() {
-                c.width=innerWidth;
-                c.height=innerHeight;
-                x.fillStyle="#111";
-                x.fillRect(0,0,c.width,c.height);
+          for(let i=0;i<3;i++)
+          {
+            bottle(bx[i],c.height/2,bc[i]);
+            if(s.includes(i)){
+                x.strokeStyle="#fff";
+                x.lineWidth=3;
+                x.strokeRect(bx[i]-3,c.height/2-3,56,86);
+
+            }
+          }
+
+            x.fillStyle="#fff";
+            x.font="20px sans-serif";
+            x.fillText(s.length+" / 2 selected",c.width/2-65,c.height/2+120);
+
+            if(s.length==2){
+                x.fillStyle="#6a3";
+                x.fillRect(c.width/2-80,c.height/2+150,160,50);
 
                 x.fillStyle="#fff";
-                x.font="28px sans-serif";
-                x.fillText("POTION LAB",20,50);
-                
-                p.forEach((color,i)=>
-                bottle(c.width/2-100+i*75,c.height/2,color,s.includes(i))
-            
-            );
-
-            x.font="20px sans-serif";
-            x.fillText(
-                s.length+" / 2 selected",
-                c.width/2-65,
-                c.height/2+120
-            );
+                x.font="20px sans-serif";
+                x.fillText("BREW POTION",c.width/2-65,c.height/2+182);
             }
 
-            c.onclick=e=>{
-                let i=Math.floor((e.clientX-(c.width/2-100))/75);
-                if(i>=0&&i<3&&e.clientY>c.height/2&&e.clientY<c.height/2+90){
-                    let n=s.indexOf(i);
-                    n>=0?s.splice(n,1):s.length<2&&s.push(i);
+            if(result){
+                x.fillStyle="#fff";
+                x.font="24px sans-serif";
+                x.fillText(result,c.width/2-90,c.height/2+230);
+
+                x.fillStyle="#555";
+                x.fillRect(c.width/2-70,c.height/2+260,140,50);
+
+                x.fillStyle="#fff";
+                x.font="20px sans-serif";
+                x.textAlign="center";
+                x.textBaseline="middle";
+                x.fillText("RESET",c.width/2,c.height/2+289);
+                x.textAlign="left";
+                x.textBaseline="alphabetic";
+
+            }
+
+
+        }
+        c.addEventListener("click",e=>{
+            let i=Math.floor((e.clientX-c.getBoundingClientRect().left-c.width/2+100)/75);
+            if(i>=0&&i<3&&s.length<2&&!s.includes(i)){
+                s.push(i);
+                draw();
+            }
+        });
+        c.addEventListener("click",e=>{
+            let mx=e.clientX;
+            let my=e.clientY;
+
+            if(result&&
+                mx>c.width/2-60&&mx<c.width/2+60&&
+                my>c.height/2+260&&my<c.height/2+305){
+                    s=[];
+                    result="";
+                    draw();
+                    return;
+                }
+
+            if(s.length==2&&
+                mx>c.width/2-80&&mx<c.width/2+80&&
+                my>c.height/2+150&&my<c.height/2+200){
+                    if(s.includes(0)&&s.includes(1))result="FIRE POTION";
+                    else if(s.includes(0)&&s.includes(2))result="POISON POTION";
+                    else if(s.includes(1)&&s.includes(2))result="ICE POTION";
+                    score++;
+                    draw();
+                    return;
+                }
+                let i=Math.floor((mx-c.getBoundingClientRect().left-c.width/2+100)/75);
+
+                if(i>=0&&i<3&&s.length<2&&!s.includes(i)){
+                    s.push(i);
                     draw();
                 }
-            };
-
-            onresize=draw;
-            draw();
-        }
+        });
+        onresize=draw;
+        draw();
     </script>
 </body>
