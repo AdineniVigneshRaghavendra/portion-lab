@@ -7,7 +7,9 @@
     </style>
     <script>
         const c=document.getElementById("c"),x=c.getContext("2d");
-        let s=[],result="",score=0;
+        let s=[],result="",score=0,target=Math.floor(Math.random()*3);
+        let names=["FIRE POTION","POISON POTION","ICE POTION"];
+
 
         function draw() {
             c.width=innerWidth;
@@ -20,6 +22,7 @@
             x.font="28px sans-serif";
             x.fillText("POTION LAB",20,50);
             x.fillText("SCORE: "+score,20,80);
+            x.fillText("ORDER: "+names[target],20,110);
 
            function bottle(px,py,color){
             x.fillStyle="#bbb";
@@ -30,44 +33,50 @@
            
           let bx=[c.width/2-100,c.width/2-25,c.width/2+50];
           let bc=["#f00","#00f","#0f0"];
+          let ingredients=["FLAMES","FROST","TOXIC"];
 
-          for(let i=0;i<3;i++)
-          {
-            bottle(bx[i],c.height/2,bc[i]);
-            if(s.includes(i)){
-                x.strokeStyle="#fff";
-                x.lineWidth=3;
-                x.strokeRect(bx[i]-3,c.height/2-3,56,86);
+          for(let i=0;i<3;i++){
+          bottle(bx[i],c.height/2,bc[i]);
+          if(s.includes(i)){
+            x.strokeStyle="#fff";
+            x.lineWidth=3;
+            x.strokeRect(bx[i]-3,c.height/2-3,56,86);
 
-            }
           }
+
+          x.fillStyle="#fff";
+          x.font="16px sans-serif";
+          x.textAlign="center";
+          x.fillText(ingredients[i],bx[i]+25,c.height/2+105);
+          }
+          x.textAlign="left";
 
             x.fillStyle="#fff";
             x.font="20px sans-serif";
-            x.fillText(s.length+" / 2 selected",c.width/2-65,c.height/2+120);
+            x.fillText(s.length+" / 2 selected",c.width/2-65,c.height/2+140);
 
             if(s.length==2){
                 x.fillStyle="#6a3";
-                x.fillRect(c.width/2-80,c.height/2+150,160,50);
+                x.fillRect(c.width/2-80,c.height/2+165,160,50);
 
                 x.fillStyle="#fff";
                 x.font="20px sans-serif";
-                x.fillText("BREW POTION",c.width/2-65,c.height/2+182);
+                x.fillText("BREW POTION",c.width/2-65,c.height/2+197);
             }
 
             if(result){
                 x.fillStyle="#fff";
                 x.font="24px sans-serif";
-                x.fillText(result,c.width/2-90,c.height/2+230);
+                x.fillText(result,c.width/2-90,c.height/2+245);
 
                 x.fillStyle="#555";
-                x.fillRect(c.width/2-70,c.height/2+260,140,50);
+                x.fillRect(c.width/2-70,c.height/2+280,140,50);
 
                 x.fillStyle="#fff";
                 x.font="20px sans-serif";
                 x.textAlign="center";
                 x.textBaseline="middle";
-                x.fillText("RESET",c.width/2,c.height/2+289);
+                x.fillText("RESET",c.width/2,c.height/2+309);
                 x.textAlign="left";
                 x.textBaseline="alphabetic";
 
@@ -75,43 +84,49 @@
 
 
         }
-        c.addEventListener("click",e=>{
-            let i=Math.floor((e.clientX-c.getBoundingClientRect().left-c.width/2+100)/75);
-            if(i>=0&&i<3&&s.length<2&&!s.includes(i)){
-                s.push(i);
-                draw();
+       c.addEventListener("click",e=>{
+        let mx=e.clientX;
+        let my=e.clientY;
+
+        if(result&&
+            mx>c.width/2-70&&mx<c.width/2+70&&
+            my>c.height/2+280&&my<c.height/2+330
+        ){
+            s=[];
+            result="";
+            target=(target+1)%3;
+            draw();
+            return;
+        }
+
+        if(result)return;
+
+        if(s.length==2&&
+            mx>c.width/2-80&&mx<c.width/2+80&&
+            my>c.height/2+165&&my<c.height/2+215
+        ){
+            let mix=s.includes(0)&&s.includes(1)?0:
+                    s.includes(0)&&s.includes(2)?1:2;
+
+            if(mix==target){
+                result=names[target];
+                score++
+            }else{
+                result="WRONG MIX!";
             }
-        });
-        c.addEventListener("click",e=>{
-            let mx=e.clientX;
-            let my=e.clientY;
+            draw();
+            return;
+        }
 
-            if(result&&
-                mx>c.width/2-60&&mx<c.width/2+60&&
-                my>c.height/2+260&&my<c.height/2+305){
-                    s=[];
-                    result="";
-                    draw();
-                    return;
-                }
+        let i=Math.floor(
+            (mx-c.getBoundingClientRect().left-c.width/2+100)/75
+        );
 
-            if(s.length==2&&
-                mx>c.width/2-80&&mx<c.width/2+80&&
-                my>c.height/2+150&&my<c.height/2+200){
-                    if(s.includes(0)&&s.includes(1))result="FIRE POTION";
-                    else if(s.includes(0)&&s.includes(2))result="POISON POTION";
-                    else if(s.includes(1)&&s.includes(2))result="ICE POTION";
-                    score++;
-                    draw();
-                    return;
-                }
-                let i=Math.floor((mx-c.getBoundingClientRect().left-c.width/2+100)/75);
-
-                if(i>=0&&i<3&&s.length<2&&!s.includes(i)){
-                    s.push(i);
-                    draw();
-                }
-        });
+        if(i>=0&&i<3&&s.length<2&&!s.includes(i)){
+            s.push(i);
+            draw();
+        }
+       });
         onresize=draw;
         draw();
     </script>
