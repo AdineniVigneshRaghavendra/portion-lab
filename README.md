@@ -1,3 +1,5 @@
+![Potion-Lab](potion-lab.png)
+
 Potion Lab
 
 Potion Lab is a small browser game where you mix ingredients to create potions. The lab gives you an order, and your job is to figure out the correct combination.
